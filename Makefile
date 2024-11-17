@@ -12,6 +12,7 @@ setup:
 		cp .env.example $(ENV_FILE); \
 		echo "Created .env file from example"; \
 	fi
+	go install github.com/air-verse/air@latest
 	go mod download
 	
 build:
