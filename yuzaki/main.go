@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"yuzaki/commands"
 	"yuzaki/config"
 	"yuzaki/handlers"
 
@@ -30,6 +31,7 @@ func init() {
 	session.Identify.Intents = discordgo.IntentsAll
 	session.AddHandler(ready)
 	session.AddHandler(handlers.MessageGatewayHandler)
+	session.AddHandler(handlers.InteractionCreateHandler)
 }
 
 func main() {
@@ -47,6 +49,9 @@ func setupAndRun(ctx context.Context) error {
 	}
 	defer session.Close()
 
+	log.Printf("Adding commands to %d guilds", len(session.State.Guilds))
+	addApplicationCommands(session)
+
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
@@ -59,66 +64,24 @@ func setupAndRun(ctx context.Context) error {
 	}
 }
 
+func addApplicationCommands(s *discordgo.Session) {
+	for _, guild := range s.State.Guilds {
+		registeredCommands, err := session.ApplicationCommandBulkOverwrite(session.State.User.ID, guild.ID, commands.Commands)
+		if err != nil {
+			log.Printf("error adding commands to guild %s: %v", guild.ID, err)
+			continue
+		}
+		log.Printf("added %d commands to guild %s", len(registeredCommands), guild.ID)
+		for _, command := range registeredCommands {
+			log.Printf("registered command %s", command.Name)
+		}
+	}
+}
+
 func ready(s *discordgo.Session, event *discordgo.Ready) {
 	log.Printf("Logged in as %s on %d guilds", event.User.String(), len(event.Guilds))
 	if err := s.UpdateWatchStatus(0, "all users in Yuzaki's Canyon!"); err != nil {
 		log.Printf("error setting status: %v", err)
 	}
 	log.Println("Bot is now running. Press CTRL-C to exit.")
-
-	// On guild 1009009522767052860, assign all users a role with role id 1307471288415162428
-	// var rolesAssigned, rolesSkipped int
-	// guild, err := s.Guild("1009009522767052860")
-	// if err != nil {
-	// 	log.Printf("error getting guild: %v", err)
-	// 	return
-	// }
-
-	// var lastMemberID string
-	// for {
-	// 	members, err := s.GuildMembers(guild.ID, lastMemberID, 1000)
-	// 	if err != nil {
-	// 		log.Printf("error getting guild members: %v", err)
-	// 		return
-	// 	}
-	// 	if len(members) == 0 {
-	// 		break
-	// 	}
-
-	// 	for _, member := range members {
-	// 		// skip if bot
-	// 		if member.User.Bot {
-	// 			continue
-	// 		}
-
-	// 		// Check if member already has the role
-	// 		hasRole := false
-	// 		for _, roleID := range member.Roles {
-	// 			if roleID == "1307471288415162428" {
-	// 				hasRole = true
-	// 				break
-	// 			}
-	// 		}
-
-	// 		if hasRole {
-	// 			log.Printf("Skipping role assignment for %s (%s) - already has role", member.User.Username, member.User.ID)
-	// 			rolesSkipped++
-	// 			continue
-	// 		}
-
-	// 		if err := s.GuildMemberRoleAdd(guild.ID, member.User.ID, "1307471288415162428"); err != nil {
-	// 			log.Printf("error adding role to %s (%s): %v", member.User.Username, member.User.ID, err)
-	// 			continue
-	// 		}
-	// 		log.Printf("Assigned role to %s (%s)", member.User.Username, member.User.ID)
-	// 		rolesAssigned++
-	// 	}
-
-	// 	if len(members) < 1000 {
-	// 		break
-	// 	}
-	// 	lastMemberID = members[len(members)-1].User.ID
-	// }
-
-	// log.Printf("Operation complete: Assigned roles to %d members, skipped %d members", rolesAssigned, rolesSkipped)
 }

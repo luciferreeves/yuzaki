@@ -53,7 +53,6 @@ func Load() error {
 		return fmt.Errorf("getting POKETWO_CHANNELS: %w", err)
 	}
 	config.ConfiguredChannels.PoketwoSpawns = channels
-	fmt.Println(config.ConfiguredChannels.PoketwoSpawns)
 
 	if err := validateConfig(config); err != nil {
 		return fmt.Errorf("validating config: %w", err)
