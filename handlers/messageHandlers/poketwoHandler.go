@@ -20,11 +20,12 @@ func PoketwoHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		return
 	}
-
 	if isPoketwoCommand(m) && !isAllowed {
 		handleUnauthorizedCommand(s, m)
 	}
 }
+
+
 
 func isPoketwoCommand(m *discordgo.MessageCreate) bool {
 	return strings.HasPrefix(strings.ToLower(m.Content), "p!") ||

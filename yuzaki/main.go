@@ -32,6 +32,7 @@ func init() {
 	session.AddHandler(ready)
 	session.AddHandler(handlers.MessageGatewayHandler)
 	session.AddHandler(handlers.InteractionCreateHandler)
+	session.AddHandler(handlers.MemberAdd)
 }
 
 func main() {

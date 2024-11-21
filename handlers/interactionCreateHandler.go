@@ -10,6 +10,7 @@ import (
 var (
 	SlashCommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"purge": admin.PurgeChat,
+		"kick": admin.KickMember,
 	}
 )
 

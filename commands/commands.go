@@ -6,6 +6,7 @@ import (
 
 var (
 	manageMessagesPermissions int64 = discordgo.PermissionManageMessages
+	PermissionKickMembers     int64 = discordgo.PermissionKickMembers
 )
 
 var (
@@ -19,6 +20,19 @@ var (
 					Type:        discordgo.ApplicationCommandOptionInteger,
 					Name:        "amount",
 					Description: "The amount of messages to purge",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:                     "kick",
+			Description:              "Kick a member from the server",
+			DefaultMemberPermissions: &PermissionKickMembers,
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionUser,
+					Name:        "target",
+					Description: "The member to kick",
 					Required:    true,
 				},
 			},
